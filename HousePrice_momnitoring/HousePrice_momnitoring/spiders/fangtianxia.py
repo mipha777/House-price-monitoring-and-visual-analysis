@@ -10,9 +10,10 @@ class FangtianxiaSpider(RedisSpider):
     name = "fangtianxia"
     redis_key = "ftx:start_urls"
     custom_settings = {
-        "DOWNLOAD_DELAY": 3,  # 0.1秒间隔
-        "CONCURRENT_REQUESTS": 2,  # 高并发
+        "DOWNLOAD_DELAY": 3,  # 间隔
+        "CONCURRENT_REQUESTS": 2,  # 并发
     }
+
     def parse(self, response):
         print('fangtainxia')
         main_url = response.url.split('/')[2]

@@ -25,8 +25,9 @@ class LianjiapriceSpider(RedisSpider):
             city_name = back_your_name(base_url,'lianjia')# 获取城市名字
 
             next_page_num = int(re.search(r'pg(\d+)', main_url).group(1)) + 1
-            next_url = base_url + '/ershoufang/pg' + str(next_page_num)+ '/'
-
+            if next_page_num <= 6:
+                next_url = base_url + '/ershoufang/pg' + str(next_page_num)+ '/'
+                yield scrapy.Request(url=next_url, callback=self.parse)
             for house_list in all_house_list:
                 yanzheng = house_list.xpath('./@data-lj_action_housedel_id')
                 if not yanzheng:
@@ -65,4 +66,3 @@ class LianjiapriceSpider(RedisSpider):
                         url=url
                 )
 
-            yield scrapy.Request(url = next_url, callback=self.parse)

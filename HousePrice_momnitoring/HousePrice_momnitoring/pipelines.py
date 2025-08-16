@@ -13,7 +13,7 @@ from .settings import mubiaochengshi,mubiaoshenghui
 class HousepriceMomnitoringPipeline:
 
     def __init__(self):
-        self.size = 30
+        self.size = 50
         self.lastTime = time.time()
         # self.container = []
         self.house = []
@@ -63,14 +63,14 @@ class HousepriceMomnitoringPipeline:
 
     def insterINTO(self,spider):
         sqlconect = '''
-                    insert into ershoufang(houseID, platformID, province, city, district, price, unit_price, area, 
+                    INSERT IGNORE INTO ershoufang(houseID, platformID, province, city, district, price, unit_price, area, 
                                            house_type, floor, orientation, year_built, community, title, source_url,crawl_time) 
-                    values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) 
+                    values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                     '''
         try:
             self.cursor.executemany(sqlconect, self.house)
             self.conn.commit()
-            self.songs.clear()
+            self.house.clear()
             self.last_commit_time = time.time()  # 更新提交时间
         except Exception as e:
             self.conn.rollback()

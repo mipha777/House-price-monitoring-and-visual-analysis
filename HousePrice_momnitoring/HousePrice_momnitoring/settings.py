@@ -42,11 +42,13 @@ REDIS_REQUEST_SERIALIZER = "scrapy_redis.pipelines.JSONRequestSerializer"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
+LOG_LEVEL = 'DEBUG'
 
 # Concurrency and throttling settings
-CONCURRENT_REQUESTS = 6
-CONCURRENT_REQUESTS_PER_DOMAIN = 2
-DOWNLOAD_DELAY = 3
+CONCURRENT_REQUESTS = 1
+CONCURRENT_REQUESTS_PER_DOMAIN = 1
+DOWNLOAD_DELAY = 1
+
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
@@ -71,7 +73,7 @@ DEFAULT_REQUEST_HEADERS = {
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    "HousePrice_momnitoring.middlewares.HousepriceMomnitoringDownloaderMiddleware": 543,
-   "HousePrice_momnitoring.middlewares.MyHeadersMiddleware": 300,
+   "HousePrice_momnitoring.middlewares.MyHeadersMiddleware": 350,
    "HousePrice_momnitoring.middlewares.MyProxyMiddleware": 310,
 
 
@@ -112,6 +114,82 @@ ITEM_PIPELINES = {
 # Set settings whose default value is deprecated to a future-proof value
 FEED_EXPORT_ENCODING = "utf-8"
 
+CONNECTION_LIST = [
+    "keep-alive",
+    "close",
+    "Keep-Alive",
+    "Upgrade",
+    "keep-alive, Upgrade"
+]
+REFERER_LIST_lj = [
+    # 链家站内
+    "https://lianjia.com/",
+    "https://lianjia.com/ershoufang/",
+    "https://sh.lianjia.com/xiaoqu/",
+    "https://bj.lianjia.com/chengjiao/",
+
+    # 搜索引擎来源
+    "https://www.baidu.com/",
+    "https://m.baidu.com/",
+    "https://www.google.com/",
+    "https://cn.bing.com/",
+
+    # 少量社交媒体流量
+    "https://weibo.com/",
+]
+REFERER_LIST_anjuke = [
+    # 安居客站内
+    "https://anjuke.com/",
+    "https://www.anjuke.com/sale/",
+    "https://bj.anjuke.com/sale/",
+    "https://sh.anjuke.com/sale/",
+    "https://gz.anjuke.com/sale/",
+
+    # 搜索引擎来源
+    "https://www.baidu.com/",
+    "https://m.baidu.com/",
+    "https://www.google.com/",
+    "https://cn.bing.com/",
+
+    # 社交媒体来源
+    "https://weibo.com/",
+    "https://www.zhihu.com/",
+    "https://www.douban.com/"
+]
+
+REFERER_LIST_fangtianxia = [
+    # 房天下站内
+    "https://fang.com/",
+    "https://esf.fang.com/",
+    "https://bj.esf.fang.com/",
+    "https://sh.esf.fang.com/",
+    "https://hz.esf.fang.com/",
+
+    # 搜索引擎来源
+    "https://www.baidu.com/",
+    "https://m.baidu.com/",
+    "https://www.google.com/",
+    "https://cn.bing.com/",
+
+    # 社交媒体来源
+    "https://weibo.com/",
+    "https://www.zhihu.com/",
+    "https://www.douban.com/"
+]
+
+ACCEPT_LANGUAGE_LIST = [
+    "zh-CN,zh;q=0.9",
+    "zh-CN,zh;q=0.8,en;q=0.7",
+    "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+    "en-US,en;q=0.9,zh-CN;q=0.8",
+    "zh-CN;q=0.9,en;q=0.6,ja;q=0.4",
+    "zh-CN,zh;q=0.9,zh-TW;q=0.8,en;q=0.7",
+    "zh;q=0.9,en;q=0.8",
+    "zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4",
+    "zh-CN,zh;q=0.7,en;q=0.6,fr;q=0.5",
+    "zh-CN;q=0.9,en;q=0.8,ko;q=0.6",
+    "zh-CN,zh;q=0.9,en;q=0.7,ru;q=0.5"
+]
 
 USER_AGENTS = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.112 Safari/537.36",

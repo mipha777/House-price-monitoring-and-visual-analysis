@@ -10,7 +10,9 @@ import random
 import base64
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-
+from .proxy_Pool import ProxyPool
+from scrapy.utils.project import get_project_settings
+import threading
 
 class HousepriceMomnitoringSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -103,25 +105,34 @@ class HousepriceMomnitoringDownloaderMiddleware:
         spider.logger.info("Spider opened: %s" % spider.name)
 
 class MyHeadersMiddleware:
-    def __init__(self, user_agents):
-        self.user_agents = user_agents
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        user_agents = crawler.settings.getlist('USER_AGENTS')  # getlist 获取列表
-        return cls(user_agents)
+    def __init__(self):
+        settings = get_project_settings()
+        self.user_agents = settings.get('USER_AGENTS')
+        self.Referer_lj = settings.get("REFERER_LIST_lj")
+        self.Referer_ajk = settings.get('REFERER_LIST_ajk')
+        self.Referer_ftx = settings.get('REFERER_LIST_ftx')
+        self.accept = settings.get('ACCEPT_LANGUAGE_LIST')
+        self.CONNECTION = settings.get('CONNECTION_LIST')
 
     def process_request(self,request,spider):
         request.headers['User-Agent'] = random.choice(self.user_agents)
-        if spider.name == 'lianjiaPrice':
-            request.headers['Referer'] = request.url
-            request.headers['accept-language'] ='zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        # if spider.name == 'lianjiaPrice':
+        #     print('正在为链家设置不同的请求头参数')
+        #     request.headers['Referer'] = random.choice(self.Referer_lj)
+        #     request.headers['accept-language'] = random.choice(self.accept)
+        #     request.headers['Connection'] = random.choice(self.CONNECTION)
+        # elif spider.name == 'anjuke':
+        #     print('anjuke请求头设置')
+        #     request.headers['Referer'] = random.choice(self.Referer_ajk)
+        #     request.headers['accept-language'] = random.choice(self.accept)
+        #     request.headers['Connection'] = random.choice(self.CONNECTION)
+        # elif spider.name == 'fangtianxia':
+        #     print('fangtianxia请求头设置中')
+        #     request.headers['Referer'] = random.choice(self.Referer_ftx)
+        #     request.headers['accept-language'] = random.choice(self.accept)
+        #     request.headers['Connection'] = random.choice(self.CONNECTION)
 
 
-
-from .proxy_Pool import ProxyPool
-from scrapy.utils.project import get_project_settings
-import threading
 # zidingyi代理中间件 使用代理 清除被封的代理
 
 
@@ -171,7 +182,7 @@ class MyProxyMiddleware:
         else:
             spider.logger.warning("代理全部被封禁，无法补充")
 
-    def process_response(self, request, response, spider):
+    async def process_response(self, request, response, spider):
         proxy = request.meta.get('proxy')
         domain = self._get_domain(request.url)
 
@@ -182,8 +193,19 @@ class MyProxyMiddleware:
             self.fail_counts[proxy][domain] = 0
 
         if response.status in [403, 429, 500, 502, 503, 504, 404, 302]:
+
             print(f'代理 {proxy} 在 {domain} 遇到问题，状态码: {response.status}')
             self.fail_counts[proxy][domain] += 1
+            if response.status == 302 and spider.name == 'anjuke':
+                # 调用 Playwright 处理验证
+                await handle_302_verification(
+                    url=response.url,
+                    proxy=request.meta.get('proxy'),
+                    debug=True
+                )
+                # 可以返回 None 或者原请求重新入队
+                return request
+
 
             if self.fail_counts[proxy][domain] >= 3:
                 self.remove_proxy(proxy)

@@ -1,3 +1,5 @@
+import time
+
 import scrapy
 import re
 import json
@@ -19,12 +21,14 @@ class AnjukeSpider(RedisSpider):
 
     def parse(self, response):
         print('anjuke')
+        print(response.text)
+        time.sleep(10)
         main_url = response.url.split('/')[2]
         city_name = back_your_name(main_url,'anjuke')
         resp = etree.HTML(response.text)
         next_page_list = resp.xpath('//*[@id="esfMain"]/section/section[3]/section[1]/section[4]/div/a[2]/@href')
         next_page = next_page_list[0] if next_page_list else None
-        if not next_page: # 没有下一页 也就没有这一页 也就是房源空了
+        if next_page: # 没有下一页 也就没有这一页 也就是房源空了
             houses_info = resp.xpath('//div[@tongji_tag="fcpc_ersflist_gzcount"]')
 
             # 去除广告

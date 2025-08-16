@@ -16,7 +16,7 @@ from lxml import etree
 r = redis.Redis(
     host="159.75.144.33",
     port=6379,
-    password="shaozi777",  # 如果无密码，删掉这一行
+    password="shaozi777",
     decode_responses=False
 )
 page = 10  # 页数 后期挪到setting
