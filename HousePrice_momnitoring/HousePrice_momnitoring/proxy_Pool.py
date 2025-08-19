@@ -35,7 +35,7 @@ class ProxyPool:
 
 if __name__ == '__main__': # 测试入口
     # 测试代理文件这里的返回值 以及代理能不能用
-    p = ProxyPool(api_url='https://dps.kdlapi.com/api/getdps/?secret_id=okchdbkacxuxeml03p3z&signature=tla8yi7jqamjge4cxobfgrvlul930qa5&num=1&format=json&sep=1&dedup=1')  #自己的api提取连接
+    p = ProxyPool(api_url='htm=1&fo&dedup=1')  #自己的api提取连接
     list = p.fetch_proxies()
     print(list) # 以及网站的相应结构  不同的网站的代理 给ip的方式不一样
     # proxy = random.choice(list)
