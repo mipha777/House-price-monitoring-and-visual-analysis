@@ -4,19 +4,18 @@ from ..items import HousepriceMomnitoringItem
 from scrapy_redis.spiders import RedisSpider
 from lxml import etree
 from ..tools.back_city_name import back_your_name
-
+from ..settings import first_to_all
 
 class LianjiapriceSpider(RedisSpider):
     name = "lianjiaPrice"
     redis_key = "lianjia:start_urls"
     custom_settings = {
-        "DOWNLOAD_DELAY": 3,  # 3秒间隔
+        "DOWNLOAD_DELAY": 5,  # 3秒间隔
         "CONCURRENT_REQUESTS": 2,  # 降低并发
     }
 
 
     def parse(self, response):
-        print('lianjia')
         if '未找到符合' not in response.text:
             res = etree.HTML(response.text)
             main_url = response.url
@@ -25,9 +24,12 @@ class LianjiapriceSpider(RedisSpider):
             city_name = back_your_name(base_url,'lianjia')# 获取城市名字
 
             next_page_num = int(re.search(r'pg(\d+)', main_url).group(1)) + 1
-            if next_page_num <= 6:
+            if next_page_num <= 5:
                 next_url = base_url + '/ershoufang/pg' + str(next_page_num)+ '/'
-                yield scrapy.Request(url=next_url, callback=self.parse)
+                if first_to_all:
+                    yield scrapy.Request(url=next_url, callback=self.parse)
+                elif next_page_num <2:
+                    yield scrapy.Request(url=next_url, callback=self.parse)
             for house_list in all_house_list:
                 yanzheng = house_list.xpath('./@data-lj_action_housedel_id')
                 if not yanzheng:

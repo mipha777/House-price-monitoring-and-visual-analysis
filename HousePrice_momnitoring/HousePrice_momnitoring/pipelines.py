@@ -13,7 +13,7 @@ from .settings import mubiaochengshi,mubiaoshenghui
 class HousepriceMomnitoringPipeline:
 
     def __init__(self):
-        self.size = 50
+        self.size = 100
         self.lastTime = time.time()
         # self.container = []
         self.house = []
@@ -35,7 +35,6 @@ class HousepriceMomnitoringPipeline:
 
         item["crawl_time"] = datetime.datetime.now()
         item['province'] = mubiaoshenghui
-        print(f'数据准备写入{item['province']}')
         self.house.append((
             item['house_id'],
             item['platform_id'],

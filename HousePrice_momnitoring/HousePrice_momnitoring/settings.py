@@ -14,21 +14,27 @@ NEWSPIDER_MODULE = "HousePrice_momnitoring.spiders"
 
 ADDONS = {}
 
+first_to_all = True # 第一次爬取全部 改为flase即为日常更新
+
+
+
 # 启用 scrapy-redis 去重和调度器
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 SCHEDULER_PERSIST = True
 
 mubiaoshenghui = '浙江' #
-mubiaochengshi = '杭州' # 如果要爬取整个省会下的所有 就注销这里/
-# mubiaochengshi = 0 # 如果要爬取整个省会下的所有 就打开这里
-TargetContent = '二手房' # 租房  二手房 根据目标内容进行修改 全部爬取就改为全爬
+# mubiaochengshi = '杭州' # 如果要爬取整个省会下的所有 就注销这里/
+mubiaochengshi = 0 # 如果要爬取整个省会下的所有 就打开这里
+
+
+# TargetContent = '二手房' # 租房  二手房   暂时未写代码
 
 
 #代理api
 API_URL = 'https://dps.kdlapi.com/api/getdps/?secret_id=okchdbkacxuxeml03p3z&signature=tla8yi7jqamjge4cxobfgrvlul930qa5&num=5&format=json&sep=1&dedup=1'
 
-# Redis 连接配置，改成你的云服务器IP和密码 or redis的链接
+# Redis连接配置
 REDIS_HOST = "159.75.144.33"
 REDIS_PORT = 6379
 REDIS_PARAMS = {
@@ -45,9 +51,18 @@ ROBOTSTXT_OBEY = False
 LOG_LEVEL = 'DEBUG'
 
 # Concurrency and throttling settings
-CONCURRENT_REQUESTS = 1
+CONCURRENT_REQUESTS = 2
 CONCURRENT_REQUESTS_PER_DOMAIN = 1
-DOWNLOAD_DELAY = 1
+DOWNLOAD_DELAY = 2
+
+
+
+
+# settings.py
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+SCHEDULER_PERSIST = False  # 不保留队列
+SCHEDULER_IDLE_BEFORE_CLOSE = 100  # 队列空闲 10 秒后关闭爬虫
+
 
 
 # Disable cookies (enabled by default)
@@ -75,7 +90,7 @@ DOWNLOADER_MIDDLEWARES = {
    "HousePrice_momnitoring.middlewares.HousepriceMomnitoringDownloaderMiddleware": 543,
    "HousePrice_momnitoring.middlewares.MyHeadersMiddleware": 350,
    "HousePrice_momnitoring.middlewares.MyProxyMiddleware": 310,
-
+   "HousePrice_momnitoring.middlewares.MyDeal302Middleware": 300,
 
 }
 

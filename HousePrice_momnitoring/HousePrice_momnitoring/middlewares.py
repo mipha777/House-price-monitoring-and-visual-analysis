@@ -13,6 +13,7 @@ from itemadapter import ItemAdapter
 from .proxy_Pool import ProxyPool
 from scrapy.utils.project import get_project_settings
 import threading
+from .playwright_human import anjuke_302_verification
 
 class HousepriceMomnitoringSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -135,6 +136,50 @@ class MyHeadersMiddleware:
 
 # zidingyi代理中间件 使用代理 清除被封的代理
 
+from scrapy.http import HtmlResponse
+from twisted.internet.threads import deferToThread
+from twisted.internet import reactor, defer
+from twisted.internet.task import deferLater
+
+
+class MyDeal302Middleware:
+    def process_response(self, request, response, spider):
+        if response.status == 302:
+            spider.logger.info(f"302 验证页面：{response.url}")
+
+            if spider.name == 'anjuke':  # a安居客的请求验证频繁
+                # 在单独线程里执行 Playwright
+                def run_playwright():
+                    return anjuke_302_verification(
+                        url=response.url,
+                        proxy=request.meta.get('proxy'),
+                        debug=True
+                    )
+
+                d = deferToThread(run_playwright)
+
+                def _create_response(result):
+                    if not result:
+                        spider.logger.warning("Playwright没有返回内容，使用原始response")
+
+                        return response
+
+                    return HtmlResponse(
+                        url=response.url,
+                        body=result.encode('utf-8'),
+                        encoding='utf-8',
+                        request=request
+                    )
+
+                d.addCallback(_create_response)
+                return d
+            else:
+                spider.crawler.engine.pause()
+                deferLater(reactor, 30, spider.crawler.engine.unpause)
+        return response
+
+
+
 
 class MyProxyMiddleware:
     def __init__(self):
@@ -186,7 +231,7 @@ class MyProxyMiddleware:
         proxy = request.meta.get('proxy')
         domain = self._get_domain(request.url)
 
-        # 初始化 fail_counts 结构
+        # 初始化计数器结构
         if proxy not in self.fail_counts:
             self.fail_counts[proxy] = {}
         if domain not in self.fail_counts[proxy]:
@@ -196,16 +241,6 @@ class MyProxyMiddleware:
 
             print(f'代理 {proxy} 在 {domain} 遇到问题，状态码: {response.status}')
             self.fail_counts[proxy][domain] += 1
-            if response.status == 302 and spider.name == 'anjuke':
-                # 调用 Playwright 处理验证
-                await handle_302_verification(
-                    url=response.url,
-                    proxy=request.meta.get('proxy'),
-                    debug=True
-                )
-                # 可以返回 None 或者原请求重新入队
-                return request
-
 
             if self.fail_counts[proxy][domain] >= 3:
                 self.remove_proxy(proxy)

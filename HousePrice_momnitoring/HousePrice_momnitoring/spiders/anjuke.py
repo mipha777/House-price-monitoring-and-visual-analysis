@@ -7,7 +7,7 @@ from lxml import etree
 from ..items import HousepriceMomnitoringItem
 from scrapy_redis.spiders import RedisSpider
 from ..tools.back_city_name import back_your_name
-
+from ..settings import first_to_all
 
 class AnjukeSpider(RedisSpider):
     name = "anjuke"
@@ -15,15 +15,13 @@ class AnjukeSpider(RedisSpider):
     redis_key = "anjuke:start_urls"
     print('获取url中')
     custom_settings = {
-        "DOWNLOAD_DELAY": 3,  # 0.1秒间隔
+        "DOWNLOAD_DELAY": 5,  # 0.1秒间隔
         "CONCURRENT_REQUESTS": 2,  # 并发
     }
 
     def parse(self, response):
-        print('anjuke')
-        print(response.text)
-        time.sleep(10)
         main_url = response.url.split('/')[2]
+        page = re.search(r'p(\d+)', main_url.split('/')[-2]).group(1) #huoqu页数
         city_name = back_your_name(main_url,'anjuke')
         resp = etree.HTML(response.text)
         next_page_list = resp.xpath('//*[@id="esfMain"]/section/section[3]/section[1]/section[4]/div/a[2]/@href')
@@ -35,10 +33,9 @@ class AnjukeSpider(RedisSpider):
             for house_info in houses_info:
                 guangao = house_info.xpath('.//div[@class="property-content-title-othertag"]//img')
                 if guangao:
-                    print('daizhuguangg')
+                    print('广告')
                     pass
                 else:
-                    print('开始解析')
                     house_id_str = house_info.xpath('./a/@data-lego')[0]  # 这是字符串
                     data = json.loads(house_id_str)  # 转成字典
                     house_id = data.get("entity_id", "")
@@ -80,8 +77,7 @@ class AnjukeSpider(RedisSpider):
                     # 地址详情
                     # address = house_info.xpath('.//div[@class="property-content-info property-content-info-comm"]/p[2]/span[3]/text()')[0]
                     # 房源链接
-                    url = house_info.xpath('./a/@href')[0]
-                    print('送走')
+                    url = house_info.xpath('./a/@href')[0].split('?')[0]
                     # print(house_id, platform_id, title, price, area, layout, orientation, floor, year_built, community,
                     #       district, url)
                     # 送走
@@ -102,5 +98,7 @@ class AnjukeSpider(RedisSpider):
                         url=url
                     )
 
-            if next_page:
+            if next_page and first_to_all and page < 50:
+                yield scrapy.Request(url=next_page, callback=self.parse)
+            elif next_page and page < 3:
                 yield scrapy.Request(url=next_page, callback=self.parse)

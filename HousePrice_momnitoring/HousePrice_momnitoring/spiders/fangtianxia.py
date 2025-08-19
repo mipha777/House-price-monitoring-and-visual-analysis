@@ -1,10 +1,15 @@
+import time
+
 import scrapy
 import re
 import json
 from bs4 import BeautifulSoup
 from scrapy_redis.spiders import RedisSpider
+from ..settings import first_to_all
+
 from ..items import HousepriceMomnitoringItem
 from ..tools.back_city_name import back_your_name
+
 
 class FangtianxiaSpider(RedisSpider):
     name = "fangtianxia"
@@ -15,11 +20,16 @@ class FangtianxiaSpider(RedisSpider):
     }
 
     def parse(self, response):
-        print('fangtainxia')
+        main_url = response.url
+        match = re.search(r'-i3(\d+)', main_url)
+        page = 0
+        if match:
+            page = int(match.group(1))
+
         main_url = response.url.split('/')[2]
         soup = BeautifulSoup(response.text, "lxml")
 
-        city_name = back_your_name(main_url,'ftx')
+        city_name = back_your_name(main_url, 'ftx')
         next_url = None
         link_tag = soup.select_one('div.page_box p.last a')
         if link_tag and 'href' in link_tag.attrs:
@@ -76,11 +86,10 @@ class FangtianxiaSpider(RedisSpider):
             except:
                 continue
 
-
             yield HousepriceMomnitoringItem(
                 house_id=house_id,
                 platform_id=platform_id,
-                city = city_name,
+                city=city_name,
                 district=district,
                 price=price,
                 unit_price=unit_price,
@@ -95,4 +104,7 @@ class FangtianxiaSpider(RedisSpider):
             )
 
         if next_url:
-            yield scrapy.Request(url=next_url, callback=self.parse)
+            if first_to_all and page < 50:
+                yield scrapy.Request(url=next_url, callback=self.parse)
+            elif page < 3:
+                yield scrapy.Request(url=next_url, callback=self.parse)

@@ -6,9 +6,9 @@
 @Desc     : 
 """
 import asyncio
-
+import random
 from playwright.async_api import Playwright
-from Over_verification import simulate_human_mouse_move,generate_human_like_track
+from .Over_verification import simulate_human_mouse_move,generate_human_like_track
 async def anjuke_302_verification(
     url: str,
     proxy: str = None,
@@ -53,14 +53,17 @@ async def anjuke_302_verification(
     """)
         await page.goto(url)
         # 模拟点击
-        import random
         element = await page.query_selector("#btnSubmit")
         box = await element.bounding_box()
         viewport = page.viewport_size  # 获取页面窗口大小
         start = (random.uniform(0, viewport["width"]), random.uniform(0, viewport["height"])) # suiji鼠标起点
-        end = (box["x"] + box["width"] / 2, box["y"] + box["height"] / 2) # 鼠标重点
+        end = (box["x"] + box["width"] / 2, box["y"] + box["height"] / 2) # 鼠标终点点
 
         await simulate_human_mouse_move(page, start, end, debug=debug)
+        await asyncio.sleep(1)
+        elementsure = await page.query_selector("#btnSubmit")
+        if not elementsure:
+            return True
 
         await asyncio.sleep(1)
         await browser.close()

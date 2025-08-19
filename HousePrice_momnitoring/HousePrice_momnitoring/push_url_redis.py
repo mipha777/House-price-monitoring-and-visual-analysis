@@ -19,13 +19,11 @@ r = redis.Redis(
     password="shaozi777",
     decode_responses=False
 )
-page = 10  # 页数 后期挪到setting
 
 
 class url_to_redis:
     def __init__(self):
         self.r = r
-        self.page = page
         self.mubiaoshenghui = mubiaoshenghui
         self.mubiaochengshi = mubiaochengshi
 
@@ -40,10 +38,10 @@ class url_to_redis:
                 citys_anjuke.append(city_code)
         else:
             citys_anjuke.append(city_anjuke.get(mubiaochengshi))
-        print(citys_anjuke)
+
         # city = 'hz' # 城市缩写 后期从json获取
         for city in citys_anjuke:
-            url_anjuke = city + 'sale/?from=HomePage_TopBar'
+            url_anjuke = city + 'sale/p1/?from=HomePage_TopBar'
             r.rpush("anjuke:start_urls", url_anjuke)
         print("anjukede爬取url已推送到Redis")
 
@@ -57,7 +55,7 @@ class url_to_redis:
                 citys_lj.append(code)
         else:
             citys_lj.append(city_lj.get(mubiaochengshi))
-        print(citys_lj)
+
 
         for city in citys_lj:
             url_lianjia = city + 'ershoufang/pg1/'
@@ -74,7 +72,7 @@ class url_to_redis:
                 citys_ftx.append(code)
         else:
             citys_ftx.append(city_ftx.get(mubiaochengshi))
-        print(citys_ftx)
+
         for city in citys_ftx:
             url_ftx = f"{city}/house/h316-i3/"
             r.rpush("ftx:start_urls", url_ftx)
