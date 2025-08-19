@@ -32,10 +32,10 @@ mubiaochengshi = 0 # 如果要爬取整个省会下的所有 就打开这里
 
 
 #代理api
-API_URL = 'https://dps.kdlapi.com/api/getdps/?secret_id=okchdbkacxuxeml03p3z&signature=tla8yi7jqamjge4cxobfgrvlul930qa5&num=5&format=json&sep=1&dedup=1'
+API_URL = ''
 
 # Redis连接配置
-REDIS_HOST = "159.75.144.33"
+REDIS_HOST = "" # redis地址
 REDIS_PORT = 6379
 REDIS_PARAMS = {
     "password": "shaozi777",
