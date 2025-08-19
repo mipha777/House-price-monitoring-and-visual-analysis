@@ -14,9 +14,9 @@ import requests
 from lxml import etree
 
 r = redis.Redis(
-    host="159.75.144.33",
+    host="",
     port=6379,
-    password="shaozi777",
+    password="",
     decode_responses=False
 )
 
