@@ -21,7 +21,8 @@ class AnjukeSpider(RedisSpider):
 
     def parse(self, response):
         main_url = response.url.split('/')[2]
-        page = re.search(r'p(\d+)', main_url.split('/')[-2]).group(1) #huoqu页数
+        match = re.search(r'p(\d+)', main_url.split('/')[-2])
+        page = int(match.group(1)) #huoqu页数
         city_name = back_your_name(main_url,'anjuke')
         resp = etree.HTML(response.text)
         next_page_list = resp.xpath('//*[@id="esfMain"]/section/section[3]/section[1]/section[4]/div/a[2]/@href')
