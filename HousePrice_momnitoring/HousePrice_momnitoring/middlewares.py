@@ -109,9 +109,9 @@ class MyHeadersMiddleware:
     def __init__(self):
         settings = get_project_settings()
         self.user_agents = settings.get('USER_AGENTS')
-        self.Referer_lj = settings.get("REFERER_LIST_lj")
-        self.Referer_ajk = settings.get('REFERER_LIST_ajk')
-        self.Referer_ftx = settings.get('REFERER_LIST_ftx')
+        # self.Referer_lj = settings.get("REFERER_LIST_lj")
+        # self.Referer_ajk = settings.get('REFERER_LIST_ajk')
+        # self.Referer_ftx = settings.get('REFERER_LIST_ftx')
         self.accept = settings.get('ACCEPT_LANGUAGE_LIST')
         self.CONNECTION = settings.get('CONNECTION_LIST')
 
