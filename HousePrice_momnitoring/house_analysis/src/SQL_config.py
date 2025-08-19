@@ -9,7 +9,7 @@ SQL_connect = {
     'host':'localhost',
     'port':3306,
     'user':'root',
-    'password':'shaozi777',
+    'password':'',
     'database':'houseprice',
     'charset':'utf8mb4',
     'table':'ershoufang'
