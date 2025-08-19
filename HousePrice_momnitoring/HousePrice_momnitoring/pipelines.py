@@ -23,7 +23,7 @@ class HousepriceMomnitoringPipeline:
             host='localhost',
             port=3306,
             user='root',
-            passwd='shaozi777',
+            passwd='',
             db='houseprice',
             charset='utf8',
             autocommit=False, #关闭自动提交
